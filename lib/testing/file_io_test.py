@@ -1,31 +1,63 @@
+import tempfile
 from file_io import write_file, append_file, read_file
+import uuid
+import os
 
-def test_write_file(tmp_path):
-    """Test write_file()"""
-    file_name = tmp_path / "test_file"
-    file_content = "This is a test content."
-    write_file(file_name, file_content)
-    with open(f'{file_name}.txt', 'r') as f:
-        file_content_read = f.read()
-    assert file_content_read == file_content
+'''Function write_files() in file_io.py'''
+def test_write_file():
 
-def test_append_file(tmp_path):
-    """Test append_file()"""
+  #Create temp directory to write file to and see if it exits.
+  with tempfile.TemporaryDirectory() as tmp_dirname:
+    filename = str(uuid.uuid4())
+    expected_file_content = str(uuid.uuid4())
+    write_file(f'{tmp_dirname}/{filename}',expected_file_content)
+    assert os.path.exists(f'{tmp_dirname}/{filename}.txt') == True
+    
+    # Check file content
+    file_content = ''
+    with open(f'{tmp_dirname}/{filename}.txt') as f:
+      file_content = f.read()
 
-    file_name = tmp_path / "test_file"
-    file_content = "This is a test content."
-    append_content = "\nAppended content."
-    write_file(file_name, file_content)
-    append_file(file_name, append_content)
-    with open(f'{file_name}.txt', 'r') as f:
-        file_content_read = f.read()
-    assert file_content_read == file_content + append_content
+      assert file_content == expected_file_content
 
-def test_read_file(tmp_path):
-    """Test read_file()"""
+'''Function append_file() in file_io.py'''
+def test_append_to_file():
 
-    file_name = tmp_path / "test_file"
-    file_content = "This is a test content."
-    write_file(file_name, file_content)
-    file_content_read = read_file(file_name)
-    assert file_content_read == file_content
+  #Create temp directory to write file to and see if it exits.
+  with tempfile.TemporaryDirectory() as tmp_dirname:
+
+    filename = str(uuid.uuid4())
+    expected_file_content = f'{str(uuid.uuid4())}\n'
+    expected_append_content= str(uuid.uuid4())
+
+    write_file(f'{tmp_dirname}/{filename}', expected_file_content)
+    append_file(f'{tmp_dirname}/{filename}', expected_append_content)
+
+    assert os.path.exists(f'{tmp_dirname}/{filename}.txt') == True
+    
+    # Check file content
+    expected_content_list = [expected_file_content, expected_append_content]
+    
+    with open(f'{tmp_dirname}/{filename}.txt') as f:
+      index = 0
+
+      for line in f:
+        assert expected_content_list[index] == line
+        index += 1
+
+'''Function read_file() in file_io.py'''
+
+def test_read_file():
+
+  #Create temp directory to write file to and see if it exits.
+  with tempfile.TemporaryDirectory() as tmp_dirname:
+    filename = str(uuid.uuid4())
+    expected_file_content = str(uuid.uuid4())
+
+    write_file(f'{tmp_dirname}/{filename}', expected_file_content)
+    file_content = read_file(f'{tmp_dirname}/{filename}')
+
+    assert os.path.exists(f'{tmp_dirname}/{filename}.txt') == True
+    
+    # Check file content
+    assert expected_file_content == file_content
